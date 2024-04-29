@@ -4,7 +4,7 @@ import com.minis.beans.*;
 import com.minis.core.ClassPathXmlResource;
 import com.minis.core.Resource;
 
-public class ClassPathXmlApplicationContext implements BeanFactory {
+public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationEventPublisher {
     private BeanFactory beanFactory;
 
     /**
@@ -28,15 +28,34 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
         return this.beanFactory.getBean(beanID);
     }
 
-    @Override
-    public void registerBean(String beanName, Object obj) {
-        this.beanFactory.registerBean(beanName, obj);
-    }
+//    @Override
+//    public void registerBean(String beanName, Object obj) {
+//        this.beanFactory.registerBean(beanName, obj);
+//    }
 
     @Override
     public Boolean containsBean(String name) {
         return this.beanFactory.containsBean(name);
     }
 
+    @Override
+    public boolean isSingleton(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean isPrototype(String name) {
+        return false;
+    }
+
+    @Override
+    public Class<?> getType(String name) {
+        return null;
+    }
+
+    @Override
+    public void publishEvent(ApplicationEvent applicationEvent) {
+
+    }
 }
 

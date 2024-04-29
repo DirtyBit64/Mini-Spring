@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @NoArgsConstructor
 public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory{
-    private Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>(256);
+    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
+    private List<String> beanDefinitionNames = new ArrayList<>();
 
     /**
      * 提供给外部程序从容器中获取Bean实例的接口
@@ -24,7 +25,7 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         Object singleton = this.singletons.get(beanID);
         //如果此时没有该Bean实例，则获取它的定义来创建实例
         if(singleton == null){
-            BeanDefinition beanDefinition = beanDefinitions.get(beanID);
+            BeanDefinition beanDefinition = beanDefinitionMap.get(beanID);
             if(beanDefinition == null){
                 throw new BeansException("未在配置文件中读取到该Bean");
             }
@@ -40,7 +41,15 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         return singleton;
     }
 
-    @Override
+    public void removeBeanDefinition(String name) {
+        this.beanDefinitionMap.remove(name);
+        this.beanDefinitionNames.remove(name);
+        this.removeSingleton(name);
+    }
+    public BeanDefinition getBeanDefinition(String name) {
+        return this.beanDefinitionMap.get(name);
+    }
+
     public void registerBean(String beanName, Object obj) {
         this.registerSingleton(beanName, obj);
     }
@@ -50,12 +59,36 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         return this.containsBean(name);
     }
 
+    @Override
+    public boolean isSingleton(String name) {
+        return this.beanDefinitionMap.get(name).isSingleton();
+    }
+
+    @Override
+    public boolean isPrototype(String name) {
+        return this.beanDefinitionMap.get(name).isPrototype();
+    }
+
+    @Override
+    public Class<?> getType(String name) {
+        return this.beanDefinitionMap.get(name).getBeanClass().getClass();
+        // TODO return this.beanDefinitionMap.get(name).getClass();
+    }
+
     /**
      * 1.注册Bean的定义，形成内存映像
      * 2.保存beanID(beanName)
      * @param beanDefinition
      */
-    public void registerBeanDefinition(BeanDefinition beanDefinition) {
-        this.beanDefinitions.put(beanDefinition.getId(), beanDefinition);
+    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
+        this.beanDefinitionMap.put(name, beanDefinition);
+        this.beanDefinitionNames.add(name);
+        if (!beanDefinition.isLazyInit()) {
+            try {
+                getBean(name);
+            } catch (BeansException e) {
+                log.error("registerBeanDefinition发生异常", e);
+            }
+        }
     }
 }

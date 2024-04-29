@@ -7,9 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry{
     //容器中存放所有bean的名称的列表
-    protected List beanNames = new ArrayList<>();
+    protected List<String> beanNames = new ArrayList<>();
     //容器中存放所有bean实例的map
-    protected Map singletons = new ConcurrentHashMap<>(256);
+    protected Map<String, Object> singletons = new ConcurrentHashMap<>(256);
 
     @Override
     public void registerSingleton(String beanName, Object singletonObject) {
