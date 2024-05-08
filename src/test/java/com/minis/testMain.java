@@ -13,5 +13,6 @@ public class testMain {
             throw new RuntimeException(e);
         }
         aservice.sayHello();
+        aservice.sayMyName();
     }
 }

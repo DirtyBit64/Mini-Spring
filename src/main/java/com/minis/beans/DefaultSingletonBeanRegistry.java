@@ -10,6 +10,8 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry{
     protected List<String> beanNames = new ArrayList<>();
     //容器中存放所有bean实例的map
     protected Map<String, Object> singletons = new ConcurrentHashMap<>(256);
+    // 容器中存放毛坯bean实例的map
+    protected Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(256);
 
     @Override
     public void registerSingleton(String beanName, Object singletonObject) {
@@ -37,6 +39,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry{
         synchronized (this.singletons) {
             this.beanNames.remove(beanName);
             this.singletons.remove(beanName);
+            this.earlySingletonObjects.remove(beanName);
         }
     }
 }

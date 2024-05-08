@@ -1,6 +1,7 @@
 package com.minis.Impl;
 
 import com.minis.AService;
+import com.minis.BaseService;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -12,6 +13,8 @@ public class AServiceImpl implements AService {
 
     private String name;
     private int level;
+    // Bean注入 为什么没生成setter
+    private BaseService ref1;
 
     public AServiceImpl(String name, int level){
         this.name = name;
@@ -25,7 +28,7 @@ public class AServiceImpl implements AService {
 
     @Override
     public void sayMyName(){
-        System.out.println(name + level);
+        System.out.println(name + ":" + level);
     }
 
 }

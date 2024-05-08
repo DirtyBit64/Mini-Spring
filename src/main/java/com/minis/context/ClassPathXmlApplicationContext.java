@@ -5,18 +5,25 @@ import com.minis.core.ClassPathXmlResource;
 import com.minis.core.Resource;
 
 public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationEventPublisher {
-    private BeanFactory beanFactory;
+    private SimpleBeanFactory beanFactory;
+
+    public ClassPathXmlApplicationContext(String fileName){
+        this(fileName, true);
+    }
 
     /**
      * ctx构造器 -> 整合容器的启动过程，读外部配置，解析Bean定义，创建BeanFactory
      * @param fileName 文件名
      */
-    public ClassPathXmlApplicationContext(String fileName) {
+    public ClassPathXmlApplicationContext(String fileName, boolean isRefresh) {
         Resource resource = new ClassPathXmlResource(fileName);
-        BeanFactory beanFactory = new SimpleBeanFactory();
-        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((SimpleBeanFactory) beanFactory);
+        this.beanFactory = new SimpleBeanFactory();
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         reader.loadBeanDefinitions(resource);
-        this.beanFactory = beanFactory;
+        if(isRefresh){
+            // 激活容器，加载所有bean
+            this.beanFactory.refresh();
+        }
     }
 
     /**
