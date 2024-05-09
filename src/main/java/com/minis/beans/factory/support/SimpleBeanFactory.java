@@ -1,15 +1,18 @@
-package com.minis.beans;
+package com.minis.beans.factory.support;
 
+import com.minis.beans.*;
+import com.minis.beans.factory.BeanFactory;
+import com.minis.beans.factory.config.BeanDefinition;
+import com.minis.beans.factory.config.ConstructorArgumentValue;
+import com.minis.beans.factory.config.ConstructorArgumentValues;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.xml.crypto.dsig.CanonicalizationMethod;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @NoArgsConstructor
 @Data
-public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory{
+public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory {
     private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
     private List<String> beanDefinitionNames = new ArrayList<>();
 
@@ -128,7 +131,7 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         try {
             clz = Class.forName(bd.getClassName());
             // 处理构造器参数
-            ArgumentValues argumentValues = bd.getConstructorArgumentValues();
+            ConstructorArgumentValues argumentValues = bd.getConstructorArgumentValues();
             //如果有参数
             if (!argumentValues.isEmpty()) {
                 // 字节码参数类型数组
@@ -136,7 +139,7 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
                 Object[] paramValues = new Object[argumentValues.getArgumentCount()];
                 //对每一个参数，分数据类型分别处理
                 for (int i = 0; i < argumentValues.getArgumentCount(); i++) {
-                    ArgumentValue argumentValue = argumentValues.getIndexedArgumentValue(i);
+                    ConstructorArgumentValue argumentValue = argumentValues.getIndexedArgumentValue(i);
                     if ("String".equals(argumentValue.getType()) ||
                             "java.lang.String".equals(argumentValue.getType())) {
                         paramTypes[i] = String.class;

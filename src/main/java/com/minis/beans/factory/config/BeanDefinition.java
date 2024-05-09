@@ -1,5 +1,7 @@
-package com.minis.beans;
+package com.minis.beans.factory.config;
 
+import com.minis.beans.PropertyValues;
+import com.minis.beans.factory.config.ConstructorArgumentValues;
 import lombok.Data;
 
 /**
@@ -13,7 +15,7 @@ public class BeanDefinition {
     String SCOPE_PROTOTYPE = "prototype";
     private boolean lazyInit = false; // bean是否懒加载
     private String[] dependsOn; // 记录Bean之间的依赖关系
-    private ArgumentValues constructorArgumentValues; // constructor注入参数
+    private ConstructorArgumentValues constructorArgumentValues; // constructor注入参数
     private PropertyValues propertyValues; // setter注入参数
     private String initMethodName; // 当一个Bean构造好并实例化之后是否要让框架调用初始化方法
     private volatile Object beanClass;
