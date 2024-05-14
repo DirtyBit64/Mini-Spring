@@ -1,10 +1,11 @@
 package com.minis.beans.factory.xml;
 
 import com.minis.beans.*;
+import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.config.ConstructorArgumentValue;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
-import com.minis.beans.factory.support.SimpleBeanFactory;
+import com.minis.beans.factory.support.AbstractBeanFactory;
 import com.minis.core.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
@@ -14,14 +15,14 @@ import java.util.List;
 
 @Slf4j
 public class XmlBeanDefinitionReader {
-    SimpleBeanFactory simpleBeanFactory;
-    public XmlBeanDefinitionReader(SimpleBeanFactory simpleBeanFactory) {
-        this.simpleBeanFactory = simpleBeanFactory;
+    AbstractBeanFactory beanFactory;
+    public XmlBeanDefinitionReader(AbstractBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     /**
      * 解析XML配置信息并加载到BeanDefinition
-     * @param resource 资源实体
+     * @param resource 资源实例
      */
     public void loadBeanDefinitions(Resource resource) {
         while (resource.hasNext()) {
@@ -65,15 +66,15 @@ public class XmlBeanDefinitionReader {
 
             String[] refArray = refs.toArray(new String[0]);
             beanDefinition.setDependsOn(refArray);
-            this.simpleBeanFactory.registerBeanDefinition(beanID, beanDefinition);
+            this.beanFactory.registerBeanDefinition(beanID, beanDefinition);
         }
-        // 遍历刚注册好的beandefinition
-        for (String bdName : this.simpleBeanFactory.getBeanDefinitionNames()){
-            BeanDefinition bd = this.simpleBeanFactory.getBeanDefinitionMap().get(bdName);
+        // 等所有beandefinition注册加载完毕后再加载bean
+        for (String bdName : this.beanFactory.getBeanDefinitionNames()){
+            BeanDefinition bd = this.beanFactory.getBeanDefinitionMap().get(bdName);
             // 如果没有选择懒加载
-            if (!bd.isLazyInit()) { // 等所有beandefinition加载完毕后再加载bean
+            if (!bd.isLazyInit()) {
                 try {
-                    this.simpleBeanFactory.getBean(bd.getId());
+                    this.beanFactory.getBean(bd.getId());
                 } catch (BeansException e) {
                     log.error("registerBeanDefinition()发生异常", e);
                 }

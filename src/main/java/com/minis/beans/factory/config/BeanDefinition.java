@@ -19,9 +19,10 @@ public class BeanDefinition {
     private PropertyValues propertyValues; // setter注入参数
     private String initMethodName; // 当一个Bean构造好并实例化之后是否要让框架调用初始化方法
     private volatile Object beanClass;
-    private String scope = SCOPE_SINGLETON; // 单例模式/原型模式
+    private String scope = SCOPE_SINGLETON; // 单例模式、原型模式
     public BeanDefinition(String id, String className) {
-        this.id = id; this.className = className;
+        this.id = id;
+        this.className = className;
     }
 
     public boolean isPrototype() {

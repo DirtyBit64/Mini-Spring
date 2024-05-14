@@ -2,6 +2,8 @@ package com.minis.Impl;
 
 import com.minis.AService;
 import com.minis.BaseService;
+import com.minis.BasebaseService;
+import com.minis.beans.factory.annotation.Autowired;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -10,6 +12,9 @@ import lombok.Setter;
 public class AServiceImpl implements AService {
     private String property1;
     private String property2;
+
+    @Autowired
+    private BaseService baseService;
 
     private String name;
     private int level;
@@ -29,6 +34,11 @@ public class AServiceImpl implements AService {
     @Override
     public void sayMyName(){
         System.out.println(name + ":" + level);
+    }
+
+    @Override
+    public void test(){
+        this.baseService.test();
     }
 
 }
