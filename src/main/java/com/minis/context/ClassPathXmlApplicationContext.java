@@ -3,10 +3,7 @@ package com.minis.context;
 import com.minis.beans.*;
 import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.config.BeanFactoryPostProcessor;
-import com.minis.beans.factory.config.BeanPostProcessor;
-import com.minis.beans.factory.support.AbstractBeanFactory;
-import com.minis.beans.factory.support.AutowireCapableBeanFactory;
-import com.minis.beans.factory.support.SimpleBeanFactory;
+import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.beans.factory.xml.XmlBeanDefinitionReader;
 import com.minis.core.ClassPathXmlResource;
 import com.minis.core.Resource;
@@ -17,7 +14,7 @@ import java.util.List;
 
 @Getter
 public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationEventPublisher {
-    private AutowireCapableBeanFactory beanFactory;
+    private DefaultListableBeanFactory beanFactory;
     private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
     /**
@@ -26,7 +23,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
      */
     public ClassPathXmlApplicationContext(String fileName, boolean isRefresh) throws BeansException {
         Resource resource = new ClassPathXmlResource(fileName);
-        this.beanFactory = new AutowireCapableBeanFactory();
+        this.beanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         registerBeanPostProcessors(this.beanFactory); // 先这样，之后再看
         reader.loadBeanDefinitions(resource); // 懒加载逻辑在这,创建bean
@@ -81,7 +78,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
         this.beanFactoryPostProcessors.add(postProcessor);
     }
 
-    private void registerBeanPostProcessors(AutowireCapableBeanFactory beanFactory) {
+    private void registerBeanPostProcessors(DefaultListableBeanFactory beanFactory) {
         beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
     }
 

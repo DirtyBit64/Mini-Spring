@@ -2,9 +2,8 @@ package com.minis.beans;
 
 import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.annotation.Autowired;
-import com.minis.beans.factory.config.BeanFactoryPostProcessor;
 import com.minis.beans.factory.config.BeanPostProcessor;
-import com.minis.beans.factory.support.AutowireCapableBeanFactory;
+import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,7 +39,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         return bean;
     }
 
-    public void setBeanFactory(AutowireCapableBeanFactory beanFactory) {
+    public void setBeanFactory(DefaultListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 

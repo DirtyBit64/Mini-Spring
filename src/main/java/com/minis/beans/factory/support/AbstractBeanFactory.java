@@ -26,10 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
     implements BeanFactory, BeanDefinitionRegistry {
 
-    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
-    private List<String> beanDefinitionNames = new ArrayList<>();
+    protected Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
+    protected List<String> beanDefinitionNames = new ArrayList<>();
     // 容器中存放毛坯bean实例的map
-    protected Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(256);
+    private Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(256);
 
     public void refresh() {
         System.out.println("在调用beanFactory里的refresh");
@@ -272,7 +272,10 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 //        }
     }
 
-    abstract public Object applyBeanPostProcessorBeforeInitialization(Object existingBean, String beanName) throws BeansException;
-    abstract public Object applyBeanPostProcessorAfterInitialization(Object existingBean, String beanName) throws BeansException;
+    abstract public Object applyBeanPostProcessorBeforeInitialization(Object existingBean, String beanName)
+            throws BeansException;
+
+    abstract public Object applyBeanPostProcessorAfterInitialization(Object existingBean, String beanName)
+            throws BeansException;
 
 }

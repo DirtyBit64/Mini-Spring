@@ -6,6 +6,7 @@ import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.config.ConstructorArgumentValue;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
 import com.minis.beans.factory.support.AbstractBeanFactory;
+import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.core.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
@@ -15,8 +16,8 @@ import java.util.List;
 
 @Slf4j
 public class XmlBeanDefinitionReader {
-    AbstractBeanFactory beanFactory;
-    public XmlBeanDefinitionReader(AbstractBeanFactory beanFactory) {
+    DefaultListableBeanFactory beanFactory;
+    public XmlBeanDefinitionReader(DefaultListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
