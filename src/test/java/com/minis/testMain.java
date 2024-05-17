@@ -1,8 +1,6 @@
 package com.minis;
 
-import com.minis.Impl.AServiceImpl;
 import com.minis.beans.BeansException;
-import com.minis.beans.factory.annotation.Autowired;
 import com.minis.context.ClassPathXmlApplicationContext;
 
 public class testMain {

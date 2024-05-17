@@ -67,7 +67,6 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
         this.setApplicationEventPublisher(aep);
     }
 
-    // TODO 待补充
     @Override
     void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 
