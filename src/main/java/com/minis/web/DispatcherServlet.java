@@ -5,17 +5,28 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DispatcherServlet extends HttpServlet {
-    private Map<String, MappingValue> mappingValues;
-    private Map<String, Class<?>> mappingClz = new HashMap<>();
-    private Map<String, Object> mappingObjs = new HashMap<>();
+    private List<String> packageNames;// 用于存储需要扫描的package列表
+
+    private Map<String,Object> controllerObjs = new HashMap<>();// 用于存储controller的名称与对象的映射关系
+    private List<String> controllerNames;// 用于存储controller名称数组列表
+
+    private Map<String,Class<?>> controllerClasses = new HashMap<>();// 用于存储controller名称与类的映射关系
+    private List<String> urlMappingNames = new ArrayList<>();// 是保存自定义的@RequestMapping名称（URL的名称）的列表
+
+    private Map<String,Object> mappingObjs = new HashMap<>();// 保存URL与对象的映射关系
+    private Map<String,Method> mappingMethods = new HashMap<>();// 保存URL名称与方法的映射关系
 
     private String sContextConfigLocation;
 
@@ -32,51 +43,104 @@ public class DispatcherServlet extends HttpServlet {
             // log.error("dispatcherServlet解析url异常", e);
             System.out.println("dispatcherServlet解析url异常" + e);
         }
-        Resource rs = new ClassPathXmlResource(xmlPath);
-        XmlConfigReader reader = new XmlConfigReader();
-        mappingValues = reader.loadConfig(rs);
+        this.packageNames = XmlScanComponentHelper.getNodeValue(xmlPath);
         Refresh();
     }
 
     //对所有的mappingValues中注册的类进行实例化，默认构造函数
     protected void Refresh() {
-        for (Map.Entry<String,MappingValue> entry : mappingValues.entrySet()) {
-            String id = entry.getKey();
-            String className = entry.getValue().getClz();
-            Object obj = null;
+        // 1.初始化controller
+        initController();
+        // 2.初始化URL映射
+        initMapping();
+    }
+
+    protected void initMapping() {
+        for (String controllerName : this.controllerNames) {
+            Class<?> clazz = this.controllerClasses.get(controllerName);
+            Object obj = this.controllerObjs.get(controllerName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                //检查所有的方法
+                boolean isRequestMapping = method.isAnnotationPresent(RequestMapping.class);
+                if (isRequestMapping) { //有RequestMapping注解
+                    //建立方法名和URL的映射
+                    String urlMapping = method.getAnnotation(RequestMapping.class).value();
+                    this.urlMappingNames.add(urlMapping);
+                    this.mappingObjs.put(urlMapping, obj);
+                    this.mappingMethods.put(urlMapping, method);
+                }
+            }
+        }
+    }
+
+    protected void initController() {
+        //扫描包，获取所有类名
+        this.controllerNames = scanPackages(this.packageNames);
+        for (String controllerName : this.controllerNames) {
+            Object obj;
             Class<?> clz = null;
             try {
-                clz = Class.forName(className);
-                obj = clz.newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                // log.error("dispatcherServlet中refresh()里类加载异常", e);
-                System.out.println("dispatcherServlet中refresh()里类加载异常" + e);
-                e.printStackTrace();
+                clz = Class.forName(controllerName); //加载类
+                this.controllerClasses.put(controllerName, clz);
+            } catch (Exception e) {
+                System.out.println("initController()加载类异常:" + e);
             }
-            mappingClz.put(id, clz);
-            mappingObjs.put(id, obj);
+            try {
+                obj = clz.newInstance(); //实例化bean
+                this.controllerObjs.put(controllerName, obj);
+            } catch (Exception e) {
+                System.out.println("initController()实例化bean异常:" + e);
+            }
         }
+    }
+
+    private List<String> scanPackages(List<String> packages) {
+        List<String> tempControllerNames = new ArrayList<>();
+        for (String packageName : packages) {
+            tempControllerNames.addAll(scanPackage(packageName));
+        }
+        return tempControllerNames;
+    }
+    private List<String> scanPackage(String packageName) {
+        List<String> tempControllerNames = new ArrayList<>();
+        URI uri;
+        File dir = null;
+        // 将以.分隔的包名换成以/分隔的uri
+        try {
+            // file:/D:/JAVA/Mini-Spring/out/artifacts/mini_mvc/WEB-INF/classes/com/minis/testBean/
+            uri = this.getClass().getResource("/" + packageName.replaceAll("\\.", "/")).toURI();
+            dir = new File(uri);
+        } catch (Exception e) {
+            System.out.println("扫描包异常," + e);
+        }
+        //处理对应的文件目录
+        for (File file : dir.listFiles()) { //目录下的文件或者子目录
+            if(file.isDirectory()){ //对子目录递归扫描
+                scanPackage(packageName+"."+file.getName());
+            }else{ //类文件
+                String controllerName = packageName +"." +file.getName().replace(".class", "");
+                tempControllerNames.add(controllerName);
+            }
+        }
+        return tempControllerNames;
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String sPath = request.getServletPath(); //获取请求的path
-        if (this.mappingValues.get(sPath) == null) {
+        String sPath = request.getServletPath();
+        if (!this.urlMappingNames.contains(sPath)) {
             return;
         }
-
-        Class<?> clz = this.mappingClz.get(sPath); //获取bean类定义
-        Object obj = this.mappingObjs.get(sPath);  //获取bean实例
-        String methodName = this.mappingValues.get(sPath).getMethod(); //获取调用方法名
+        Object obj;
         Object objResult = null;
         try {
-            Method method = clz.getMethod(methodName);
-            objResult = method.invoke(obj); //方法调用
+            Method method = this.mappingMethods.get(sPath);
+            obj = this.mappingObjs.get(sPath);
+            objResult = method.invoke(obj);
         } catch (Exception e) {
-            // log.error("dispatcherServlet中doGet()里反射调用方法异常", e);
-            System.out.println("dispatcherServlet中doGet()里反射调用方法异常" + e);
+            System.out.println("DispatcherServlet.doGet()调用controller方法方法异常:" + e);
         }
-        //将方法返回值写入response
         response.getWriter().append(objResult.toString());
     }
 
