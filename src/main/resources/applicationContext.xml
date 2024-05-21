@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<beans>
+    <bean id = "aService" class = "com.minis.testService.Impl.AServiceImpl">
+        <property type="String" name="property1" value="Tommy say: "/>
+        <property type="String" name="property2" value="Hello World!"/>
+        <constructor-arg type="String" name="name" value="Tommy"/>
+        <constructor-arg type="int" name="level" value="10"/>
+        <!-- 注入bean的类路径一定要对应setter -->
+<!--     @AutoWired注解实现bean依赖注入 取代：<property type="com.minis.BaseService" name="ref1" ref="baseservice"/>-->
+    </bean>
+
+    <bean id="baseService" class="com.minis.testService.Impl.BaseServiceImpl"> </bean>
+
+    <bean id="basebaseService" class="com.minis.testService.Impl.BasebaseServiceImpl"> </bean>
+
+</beans>

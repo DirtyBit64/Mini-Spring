@@ -30,10 +30,27 @@ public class DispatcherServlet extends HttpServlet {
 
     private String sContextConfigLocation;
 
+    private WebApplicationContext webApplicationContext;
+
     // 首次访问（创建）servlet时调用一次
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+
+        this.webApplicationContext = (WebApplicationContext) this.getServletContext()
+                .getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        //***************** 测试
+//        AService aService = null;
+//        try {
+//            aService = (AService) webApplicationContext.getBean("aService");
+//        } catch (BeansException e) {
+//            throw new RuntimeException(e);
+//        }
+//        aService.sayHello();
+//        aService.sayMyName();
+//        aService.test();
+        // ************* 测试
+
         // 从web.xml中拿到初始化参数（这里是mvc的配置文件url字符串）
         sContextConfigLocation = config.getInitParameter("contextConfigLocation");
         URL xmlPath = null;
