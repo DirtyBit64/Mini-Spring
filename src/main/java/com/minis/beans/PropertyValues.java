@@ -2,9 +2,11 @@ package com.minis.beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PropertyValues {
     private final List<PropertyValue> propertyValueList;
+
     public PropertyValues() {
         this.propertyValueList = new ArrayList<>(0);
     }
@@ -23,6 +25,15 @@ public class PropertyValues {
     public void removePropertyValue(String propertyName) {
         this.propertyValueList.remove(getPropertyValue(propertyName));
     }
+
+    public PropertyValues(Map<String, Object> map) {
+        this.propertyValueList = new ArrayList<>(10);
+        for (Map.Entry<String,Object> e: map.entrySet()) {
+            PropertyValue pv = new PropertyValue(e.getKey(),e.getValue()); // name & value
+            this.propertyValueList.add(pv);
+        }
+    }
+
     public PropertyValue[] getPropertyValues() {
         return this.propertyValueList.toArray(new PropertyValue[this.propertyValueList.size()]);
     }
