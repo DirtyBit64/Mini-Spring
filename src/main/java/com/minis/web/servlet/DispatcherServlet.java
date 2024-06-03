@@ -1,4 +1,9 @@
-package com.minis.web;
+package com.minis.web.servlet;
+
+import com.minis.web.AnnotationConfigWebApplicationContext;
+import com.minis.web.RequestMapping;
+import com.minis.web.WebApplicationContext;
+import com.minis.web.XmlScanComponentHelper;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -19,38 +24,27 @@ import java.util.Map;
 public class DispatcherServlet extends HttpServlet {
     private List<String> packageNames;// 用于存储需要扫描的package列表
 
+    public static final String WEB_APPLICATION_CONTEXT_ATTRIBUTE = DispatcherServlet.class.getName() + ".CONTEXT";
+
+    private HandlerMapping handlerMapping;
+    private HandlerAdapter handlerAdapter;
+
     private Map<String,Object> controllerObjs = new HashMap<>();// 用于存储controller的名称与对象的映射关系
     private List<String> controllerNames;// 用于存储controller名称数组列表
-
     private Map<String,Class<?>> controllerClasses = new HashMap<>();// 用于存储controller名称与类的映射关系
-    private List<String> urlMappingNames = new ArrayList<>();// 是保存自定义的@RequestMapping名称（URL的名称）的列表
-
-    private Map<String,Object> mappingObjs = new HashMap<>();// 保存URL与对象的映射关系
-    private Map<String,Method> mappingMethods = new HashMap<>();// 保存URL名称与方法的映射关系
 
     private String sContextConfigLocation;
 
     private WebApplicationContext webApplicationContext;
+    private WebApplicationContext parentApplicationContext;
 
     // 首次访问（创建）servlet时调用一次
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(ServletConfig config) throws ServletException{
         super.init(config);
-
-        this.webApplicationContext = (WebApplicationContext) this.getServletContext()
+        // 父上下文来自创建于listener初始化
+        this.parentApplicationContext = (WebApplicationContext) this.getServletContext()
                 .getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-        //***************** 测试
-//        AService aService = null;
-//        try {
-//            aService = (AService) webApplicationContext.getBean("aService");
-//        } catch (BeansException e) {
-//            throw new RuntimeException(e);
-//        }
-//        aService.sayHello();
-//        aService.sayMyName();
-//        aService.test();
-        // ************* 测试
-
         // 从web.xml中拿到初始化参数（这里是mvc的配置文件url字符串）
         sContextConfigLocation = config.getInitParameter("contextConfigLocation");
         URL xmlPath = null;
@@ -61,6 +55,8 @@ public class DispatcherServlet extends HttpServlet {
             System.out.println("dispatcherServlet解析url异常" + e);
         }
         this.packageNames = XmlScanComponentHelper.getNodeValue(xmlPath);
+        // 再启动一个上下文，专门处理request
+        this.webApplicationContext = new AnnotationConfigWebApplicationContext(sContextConfigLocation, this.parentApplicationContext);
         Refresh();
     }
 
@@ -69,28 +65,19 @@ public class DispatcherServlet extends HttpServlet {
         // 1.初始化controller
         initController();
         // 2.初始化URL映射
-        initMapping();
+        initHandlerMappings(this.webApplicationContext);
+        initHandlerAdapters(this.webApplicationContext);
+
     }
 
-    protected void initMapping() {
-        for (String controllerName : this.controllerNames) {
-            Class<?> clazz = this.controllerClasses.get(controllerName);
-            Object obj = this.controllerObjs.get(controllerName);
-            Method[] methods = clazz.getDeclaredMethods();
-            for (Method method : methods) {
-                //检查所有的方法
-                boolean isRequestMapping = method.isAnnotationPresent(RequestMapping.class);
-                if (isRequestMapping) { //有RequestMapping注解
-                    //建立方法名和URL的映射
-                    String urlMapping = method.getAnnotation(RequestMapping.class).value();
-                    this.urlMappingNames.add(urlMapping);
-                    this.mappingObjs.put(urlMapping, obj);
-                    this.mappingMethods.put(urlMapping, method);
-                }
-            }
-        }
+    protected void initHandlerMappings(WebApplicationContext wac) {
+        this.handlerMapping = new RequestMappingHandlerMapping(wac);
+    }
+    protected void initHandlerAdapters(WebApplicationContext wac) {
+        this.handlerAdapter = new RequestMappingHandlerAdapter(wac);
     }
 
+    // 这实例化controller bean
     protected void initController() {
         //扫描包，获取所有类名
         this.controllerNames = scanPackages(this.packageNames);
@@ -144,21 +131,20 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String sPath = request.getServletPath();
-        if (!this.urlMappingNames.contains(sPath)) {
-            return;
-        }
-        Object obj;
-        Object objResult = null;
+    protected void service(HttpServletRequest request, HttpServletResponse response) {
+        request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webApplicationContext);
         try {
-            Method method = this.mappingMethods.get(sPath);
-            obj = this.mappingObjs.get(sPath);
-            objResult = method.invoke(obj);
+            doDispatch(request, response);
         } catch (Exception e) {
-            System.out.println("DispatcherServlet.doGet()调用controller方法方法异常:" + e);
+            e.printStackTrace();
         }
-        response.getWriter().append(objResult.toString());
+    }
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception{
+        HandlerMethod handlerMethod = this.handlerMapping.getHandler(request);
+        if (handlerMethod != null) {
+            HandlerAdapter ha = this.handlerAdapter;
+            ha.handle(request, response, handlerMethod);
+        }
     }
 
 }

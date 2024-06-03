@@ -4,7 +4,6 @@ import com.minis.beans.AutowiredAnnotationBeanPostProcessor;
 import com.minis.beans.BeansException;
 import com.minis.beans.factory.config.AbstractAutowireCapableBeanFactory;
 import com.minis.beans.factory.config.BeanDefinition;
-import com.minis.beans.factory.config.BeanPostProcessor;
 import com.minis.beans.factory.config.ConfigurableListableBeanFactory;
 
 import java.util.ArrayList;
@@ -16,6 +15,15 @@ import java.util.Map;
  * 默认IoC引擎实现
  */
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableListableBeanFactory {
+
+    public Object getBean(String beanName) throws BeansException {
+        Object result = super.getBean(beanName);
+        if (result == null && super.getParentBeanFactory() != null) {
+            result = super.getParentBeanFactory().getBean(beanName);
+        }
+        return result;
+    }
+
     public int getBeanDefinitionCount() {
         return this.beanDefinitionMap.size();
     }
@@ -31,7 +39,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 result.add(beanName);
             }
         }
-        return (String[]) result.toArray();
+        String[] res = new String[result.size()];
+        return result.toArray(res);
     }
     @SuppressWarnings("unchecked")
     @Override
@@ -47,7 +56,6 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
 
 
-    // TODO 待实现
     @Override
     public void registerDependentBean(String beanName, String dependentBeanName) {
 
@@ -65,7 +73,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     @Override
     public String[] getBeanDefinitionNamesAsArray() {
-        return (String[]) super.getBeanDefinitionNames().toArray();
+        String[] format = new String[super.getBeanDefinitionNames().size()]; // 避免ClassCastException
+        return super.getBeanDefinitionNames().toArray(format);
     }
 
     @Override
@@ -74,18 +83,6 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         for (AutowiredAnnotationBeanPostProcessor beanProcessor : super.beanPostProcessors) {
             beanProcessor.setBeanFactory(this);
             result = beanProcessor.postProcessBeforeInitialization(result, beanName);
-            if (result == null) {
-                break;
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public Object applyBeanPostProcessorAfterInitialization(Object existingBean, String beanName) throws BeansException {
-        Object result = existingBean;
-        for (BeanPostProcessor beanProcessor : super.beanPostProcessors) {
-            result = beanProcessor.postProcessAfterInitialization(result, beanName);
             if (result == null) {
                 break;
             }

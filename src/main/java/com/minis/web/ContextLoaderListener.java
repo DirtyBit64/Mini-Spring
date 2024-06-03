@@ -8,7 +8,7 @@ import javax.servlet.ServletContextListener;
 
 public class ContextLoaderListener implements ServletContextListener {
     public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
-    private WebApplicationContext context;
+    private WebApplicationContext context; // Ioc容器
 
     public ContextLoaderListener() {
     }
@@ -28,7 +28,7 @@ public class ContextLoaderListener implements ServletContextListener {
     }
     private void initWebApplicationContext(ServletContext servletContext) throws BeansException {
         String sContextLocation = servletContext.getInitParameter(CONFIG_LOCATION_PARAM);
-        WebApplicationContext wac = new AnnotationConfigWebApplicationContext(sContextLocation);
+        WebApplicationContext wac = new XmlWebApplicationContext(sContextLocation);
         wac.setServletContext(servletContext);
         this.context = wac;
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);

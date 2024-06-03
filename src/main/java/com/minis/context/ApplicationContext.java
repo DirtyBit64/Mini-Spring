@@ -12,6 +12,7 @@ public interface ApplicationContext
         extends EnvironmentCapable, ListableBeanFactory,
         ConfigurableBeanFactory, ApplicationEventPublisher{
     String getApplicationName();
+
     long getStartupDate();
     ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
     void setEnvironment(Environment environment);

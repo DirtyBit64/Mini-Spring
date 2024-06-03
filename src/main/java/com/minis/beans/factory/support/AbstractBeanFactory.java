@@ -5,10 +5,12 @@ import com.minis.beans.PropertyValue;
 import com.minis.beans.PropertyValues;
 import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.config.BeanDefinition;
+import com.minis.beans.factory.config.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.config.ConstructorArgumentValue;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
@@ -30,6 +32,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
     // 容器中存放毛坯bean实例的map
     private Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(256);
 
+    protected ConfigurableListableBeanFactory parentBeanFactory;
+
     public void refresh() {
         System.out.println("在调用beanFactory里的refresh");
         for (String beanName : beanDefinitionNames) {
@@ -48,7 +52,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
      */
     @Override
     public Object getBean(String beanName) throws BeansException {
-        // System.out.println("getBean()调用");
         //先尝试直接从容器中获取bean实例
         Object singleton = this.getSingleton(beanName);
         if (singleton == null) {
@@ -58,7 +61,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                 //如果连毛胚都没有，则创建bean实例并注册
                 BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
                 if(beanDefinition == null){
-                    throw new BeansException("bean配置出错，无法解析" + beanName);
+                    return null; // 让wac调用父容器(IoC)的getBean
                 }
                 singleton = createBean(beanDefinition);
                 this.registerBean(beanName, singleton);
@@ -156,7 +159,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
             // 处理构造器参数
             ConstructorArgumentValues argumentValues = bd.getConstructorArgumentValues();
             //如果有参数
-            if (!argumentValues.isEmpty()) {
+            if (argumentValues != null && !argumentValues.isEmpty()) {
                 // 字节码参数类型数组
                 Class<?>[] paramTypes = new Class<?>[argumentValues.getArgumentCount()];
                 Object[] paramValues = new Object[argumentValues.getArgumentCount()];
@@ -204,7 +207,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
         // 处理属性
         PropertyValues propertyValues = bd.getPropertyValues();
         // 如果有属性
-        if (!propertyValues.isEmpty()) {
+        if (propertyValues != null && !propertyValues.isEmpty()) {
             for (int i = 0; i < propertyValues.size(); i++) {
                 //对每一个属性，分数据类型分别处理
                 PropertyValue propertyValue = propertyValues.getPropertyValueList().get(i);
@@ -276,5 +279,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 
     abstract public Object applyBeanPostProcessorAfterInitialization(Object existingBean, String beanName)
             throws BeansException;
+
+    public void setParent(ConfigurableListableBeanFactory beanFactory) {
+        this.parentBeanFactory = beanFactory;
+    }
 
 }
