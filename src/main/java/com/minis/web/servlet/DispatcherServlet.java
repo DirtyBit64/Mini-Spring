@@ -2,7 +2,6 @@ package com.minis.web.servlet;
 
 import com.minis.beans.BeansException;
 import com.minis.web.AnnotationConfigWebApplicationContext;
-import com.minis.web.RequestMapping;
 import com.minis.web.WebApplicationContext;
 import com.minis.web.XmlScanComponentHelper;
 
@@ -12,8 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -28,7 +25,9 @@ public class DispatcherServlet extends HttpServlet {
     public static final String WEB_APPLICATION_CONTEXT_ATTRIBUTE = DispatcherServlet.class.getName() + ".CONTEXT";
 
     private HandlerMapping handlerMapping;
+    private final static String HANDLER_MAPPER_BEAN_NAME = "handlerMapping";
     private HandlerAdapter handlerAdapter;
+    private final static String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
 
     private Map<String,Object> controllerObjs = new HashMap<>();// 用于存储controller的名称与对象的映射关系
     private List<String> controllerNames;// 用于存储controller名称数组列表
@@ -74,11 +73,14 @@ public class DispatcherServlet extends HttpServlet {
         initHandlerAdapters(this.webApplicationContext);
     }
 
-    protected void initHandlerMappings(WebApplicationContext wac) {
-        this.handlerMapping = new RequestMappingHandlerMapping(wac);
+    protected void initHandlerMappings(WebApplicationContext wac) throws BeansException {
+        this.handlerMapping = (HandlerMapping) wac.getBean(HANDLER_MAPPER_BEAN_NAME);
+        this.handlerMapping.setWac(wac);
+        this.handlerMapping.initMapping();
     }
     protected void initHandlerAdapters(WebApplicationContext wac) throws BeansException {
-        this.handlerAdapter = new RequestMappingHandlerAdapter(wac);
+        this.handlerAdapter = (HandlerAdapter) wac.getBean(HANDLER_ADAPTER_BEAN_NAME);
+        this.handlerAdapter.setWac(wac);
     }
 
     // 这实例化controller bean

@@ -2,19 +2,25 @@ package com.minis.web.servlet;
 
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
-import com.minis.beans.BeansException;
-import com.minis.web.RequestMapping;
-import com.minis.web.WebApplicationContext;
 
+import com.minis.web.annotation.RequestMapping;
+import com.minis.web.WebApplicationContext;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@NoArgsConstructor
 public class RequestMappingHandlerMapping implements HandlerMapping{
     WebApplicationContext wac;
     private final MappingRegistry mappingRegistry = new MappingRegistry();
-    public RequestMappingHandlerMapping(WebApplicationContext wac) {
-        this.wac = wac;
-        initMapping();
-    }
+//    public RequestMappingHandlerMapping(WebApplicationContext wac) {
+//        this.wac = wac;
+//        initMapping(); // 外部主动调用
+//    }
+
     //建立URL与调用方法和实例的映射关系，存储在mappingRegistry中
-    protected void initMapping() {
+    @Override
+    public void initMapping() {
         Class<?> clz = null;
         Object obj = null;
         String[] controllerNames = this.wac.getBeanDefinitionNamesAsArray();

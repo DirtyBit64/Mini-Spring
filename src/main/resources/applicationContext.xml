@@ -16,4 +16,14 @@
 
     <bean id="webBindingInitializer" class="com.minis.web.DateInitializer"> </bean>
 
+    <bean id="messageConverter" class="com.minis.web.DefaultHttpMessageConverter"> </bean>
+
+    <bean id="handlerAdapter" class="com.minis.web.servlet.RequestMappingHandlerAdapter"> </bean>
+    <bean id="handlerMapping" class="com.minis.web.servlet.RequestMappingHandlerMapping"> </bean>
+
+    <bean id="objectMapper" class="com.minis.web.DefaultObjectMapper" >
+        <property type="String" name="dateFormat" value="yyyy/MM/dd"/>
+        <property type="String" name="decimalFormat" value="###.##"/>
+    </bean>
+
 </beans>

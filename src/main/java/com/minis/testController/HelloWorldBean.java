@@ -3,7 +3,10 @@ package com.minis.testController;
 import com.minis.beans.factory.annotation.Autowired;
 import com.minis.testController.pojo.User;
 import com.minis.testService.AService;
-import com.minis.web.RequestMapping;
+import com.minis.web.annotation.RequestMapping;
+import com.minis.web.annotation.ResponseBody;
+
+import java.util.Date;
 
 public class HelloWorldBean {
 
@@ -23,5 +26,11 @@ public class HelloWorldBean {
     @RequestMapping(value = "/aService")
     public String doPost() {
         return aService.toString();
+    }
+
+    @RequestMapping("/test6")
+    @ResponseBody
+    public User doTest6(User user) {
+        return user;
     }
 }

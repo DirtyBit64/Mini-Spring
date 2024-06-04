@@ -1,29 +1,30 @@
 package com.minis.web.servlet;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.minis.beans.BeansException;
-import com.minis.web.WebApplicationContext;
-import com.minis.web.WebBindingInitializer;
-import com.minis.web.WebDataBinder;
-import com.minis.web.WebDataBinderFactory;
+import com.minis.beans.factory.annotation.Autowired;
+import com.minis.web.*;
+import com.minis.web.annotation.ResponseBody;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
+@NoArgsConstructor
 public class RequestMappingHandlerAdapter implements HandlerAdapter {
     WebApplicationContext wac;
-    private WebBindingInitializer webBindingInitializer;
 
+    @Autowired
+    private WebBindingInitializer webBindingInitializer; // 数据传入时候
+    @Autowired
+    private HttpMessageConverter messageConverter = null; // 数据传出时
 
-    public RequestMappingHandlerAdapter(WebApplicationContext wac) throws BeansException {
-        this.wac = wac;
-        // web数据绑定初始化器,初始化用户自定义的一些类型转换器
-        this.webBindingInitializer = (WebBindingInitializer)
-                this.wac.getBean("webBindingInitializer");
-    }
+//    public RequestMappingHandlerAdapter(WebApplicationContext wac) throws BeansException {
+//        this.wac = wac;
+//    }
 
     public void handle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
@@ -60,8 +61,15 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
             methodParamObjs[i++] = methodParamObj;
         }
 
+        // 调用指定方法
         Method invocableMethod = handlerMethod.getMethod();
         Object returnObj = invocableMethod.invoke(handlerMethod.getBean(), methodParamObjs);
+
+        // 对返回的数据进行格式转换
+        if (invocableMethod.isAnnotationPresent(ResponseBody.class)){
+            this.messageConverter.write(returnObj, response);
+        }
+
         response.getWriter().append(returnObj.toString());
     }
 
