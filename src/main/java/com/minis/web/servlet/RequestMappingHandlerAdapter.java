@@ -26,21 +26,22 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
 //        this.wac = wac;
 //    }
 
-    public void handle(HttpServletRequest request, HttpServletResponse response, Object handler)
-            throws Exception {
-        handleInternal(request, response, (HandlerMethod) handler);
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler){
+        return handleInternal(request, response, (HandlerMethod) handler);
     }
-    private void handleInternal(HttpServletRequest request, HttpServletResponse response,
+    private ModelAndView handleInternal(HttpServletRequest request, HttpServletResponse response,
                                 HandlerMethod handler) {
+        ModelAndView mv = null;
         try {
-            invokeHandlerMethod(request, response, handler);
+            mv = invokeHandlerMethod(request, response, handler);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return mv;
     }
 
     // 反射调用方法并且绑定数据
-    protected void invokeHandlerMethod(HttpServletRequest request,
+    protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
                                        HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
         WebDataBinderFactory binderFactory = new WebDataBinderFactory();
         Parameter[] methodParameters = handlerMethod.getMethod().getParameters();
@@ -65,12 +66,23 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
         Method invocableMethod = handlerMethod.getMethod();
         Object returnObj = invocableMethod.invoke(handlerMethod.getBean(), methodParamObjs);
 
-        // 对返回的数据进行格式转换
-        if (invocableMethod.isAnnotationPresent(ResponseBody.class)){
+        ModelAndView mav = null;
+        // 如果是ResponseBody注解，仅仅返回值，则转换数据格式后直接写到response
+        if (invocableMethod.isAnnotationPresent(ResponseBody.class)){ //ResponseBody
             this.messageConverter.write(returnObj, response);
+        } else { //返回的是前端页面
+            if (returnObj instanceof ModelAndView) {
+                mav = (ModelAndView)returnObj;
+            }
+            else if(returnObj instanceof String) { //字符串也认为是前端页面
+                String sTarget = (String)returnObj;
+                mav = new ModelAndView();
+                mav.setViewName(sTarget);
+            }
         }
-
         response.getWriter().append(returnObj.toString());
+
+        return mav;
     }
 
 }

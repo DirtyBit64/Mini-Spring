@@ -29,6 +29,7 @@ public class DispatcherServlet extends HttpServlet {
     private HandlerAdapter handlerAdapter;
     private final static String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
 
+    private final static String VIEW_RESOLVER = "viewResolver";
     private Map<String,Object> controllerObjs = new HashMap<>();// 用于存储controller的名称与对象的映射关系
     private List<String> controllerNames;// 用于存储controller名称数组列表
     private Map<String,Class<?>> controllerClasses = new HashMap<>();// 用于存储controller名称与类的映射关系
@@ -149,8 +150,18 @@ public class DispatcherServlet extends HttpServlet {
         HandlerMethod handlerMethod = this.handlerMapping.getHandler(request);
         if (handlerMethod != null) {
             HandlerAdapter ha = this.handlerAdapter;
-            ha.handle(request, response, handlerMethod);
+            ModelAndView mv = ha.handle(request, response, handlerMethod);
+            render(request, response, mv);
         }
+    }
+
+    //用jsp 进行render
+    protected void render(HttpServletRequest request, HttpServletResponse response,ModelAndView mv) throws Exception {
+        String sTarget = mv.getViewName();
+        Map<String, Object> modelMap = mv.getModel();
+        ViewResolver viewResolver = (ViewResolver) this.webApplicationContext.getBean(VIEW_RESOLVER);
+        View view = viewResolver.resolveViewName(sTarget);
+        view.render(modelMap, request, response);
     }
 
 }

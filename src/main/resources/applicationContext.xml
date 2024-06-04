@@ -26,4 +26,10 @@
         <property type="String" name="decimalFormat" value="###.##"/>
     </bean>
 
+    <bean id="viewResolver" class="com.minis.web.servlet.view.InternalResourceViewResolver" >
+        <property type="String" name="viewClassName" value="com.minis.web.servlet.view.JstlView" />
+        <property type="String" name="prefix" value="/jsp/" />
+        <property type="String" name="suffix" value=".jsp" />
+    </bean>
+
 </beans>
