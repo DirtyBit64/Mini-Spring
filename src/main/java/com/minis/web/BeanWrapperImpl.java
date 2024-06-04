@@ -13,7 +13,7 @@ public class BeanWrapperImpl extends PropertyEditorRegistrySupport {
     Class<?> clz;
     PropertyValues pvs; //参数值
     public BeanWrapperImpl(Object object) {
-        registerDefaultEditors(); //不同数据类型的参数转换器editor
+        registerDefaultEditors(); //注册基本数据类型的参数转换器editor
         this.wrappedObject = object;
         this.clz = object.getClass();
     }
@@ -30,16 +30,21 @@ public class BeanWrapperImpl extends PropertyEditorRegistrySupport {
             setPropertyValue(pv);
         }
     }
+
     //绑定具体某个参数
     public void setPropertyValue(PropertyValue pv) {
         //拿到参数处理器
         BeanPropertyHandler propertyHandler = new BeanPropertyHandler(pv.getName());
         //找到对该参数类型的editor
-        PropertyEditor pe = this.getDefaultEditor(propertyHandler.getPropertyClz());
+        PropertyEditor pe = this.getCustomEditor(propertyHandler.getPropertyClz());
+        if (pe == null) {
+            pe = this.getDefaultEditor(propertyHandler.getPropertyClz());
+        }
         //设置参数值
         pe.setAsText((String) pv.getValue());
         propertyHandler.setValue(pe.getValue());
     }
+
     //一个内部类，用于处理参数，通过getter()和setter()操作属性
     class BeanPropertyHandler {
         Method writeMethod = null;

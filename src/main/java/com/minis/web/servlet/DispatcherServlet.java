@@ -1,5 +1,6 @@
 package com.minis.web.servlet;
 
+import com.minis.beans.BeansException;
 import com.minis.web.AnnotationConfigWebApplicationContext;
 import com.minis.web.RequestMapping;
 import com.minis.web.WebApplicationContext;
@@ -57,23 +58,26 @@ public class DispatcherServlet extends HttpServlet {
         this.packageNames = XmlScanComponentHelper.getNodeValue(xmlPath);
         // 再启动一个上下文，专门处理request
         this.webApplicationContext = new AnnotationConfigWebApplicationContext(sContextConfigLocation, this.parentApplicationContext);
-        Refresh();
+        try {
+            Refresh();
+        } catch (BeansException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //对所有的mappingValues中注册的类进行实例化，默认构造函数
-    protected void Refresh() {
+    protected void Refresh() throws BeansException {
         // 1.初始化controller
         initController();
         // 2.初始化URL映射
         initHandlerMappings(this.webApplicationContext);
         initHandlerAdapters(this.webApplicationContext);
-
     }
 
     protected void initHandlerMappings(WebApplicationContext wac) {
         this.handlerMapping = new RequestMappingHandlerMapping(wac);
     }
-    protected void initHandlerAdapters(WebApplicationContext wac) {
+    protected void initHandlerAdapters(WebApplicationContext wac) throws BeansException {
         this.handlerAdapter = new RequestMappingHandlerAdapter(wac);
     }
 

@@ -2,9 +2,13 @@ package com.minis.web;
 
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+
+import com.minis.beans.PropertyEditor;
 import com.minis.beans.PropertyValues;
 import com.minis.util.WebUtils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class WebDataBinder {
     private Object target;  // 目标对象
     private Class<?> clz; // 目标对象字节码
@@ -44,5 +48,9 @@ public class WebDataBinder {
         return new PropertyValues(map);
     }
     protected void addBindValues(PropertyValues mpvs, HttpServletRequest request) {
+    }
+    public void registerCustomEditor(Class<?> requiredType, PropertyEditor propertyEditor) {
+        getPropertyAccessor().registerCustomEditor(requiredType, propertyEditor);
+        log.info("注册自定义{}类型的参数转换器", requiredType);
     }
 }
