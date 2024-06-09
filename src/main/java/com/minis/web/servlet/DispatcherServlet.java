@@ -157,6 +157,9 @@ public class DispatcherServlet extends HttpServlet {
 
     //用jsp 进行render
     protected void render(HttpServletRequest request, HttpServletResponse response,ModelAndView mv) throws Exception {
+        if (mv == null){
+            return;
+        }
         String sTarget = mv.getViewName();
         Map<String, Object> modelMap = mv.getModel();
         ViewResolver viewResolver = (ViewResolver) this.webApplicationContext.getBean(VIEW_RESOLVER);

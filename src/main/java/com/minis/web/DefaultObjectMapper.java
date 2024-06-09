@@ -49,6 +49,12 @@ public class DefaultObjectMapper implements ObjectMapper{
             }catch (IllegalAccessException e){
                 e.printStackTrace();
             }
+            // 如果该属性空值，手动赋值避免空指针异常
+            if (value == null){
+                strValue = "null";
+                continue;
+            }
+
             //针对不同的数据类型进行格式转换
             if (value instanceof Date) {
                 LocalDate localDate = ((Date)value).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();

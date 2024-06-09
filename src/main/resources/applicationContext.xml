@@ -32,4 +32,13 @@
         <property type="String" name="suffix" value=".jsp" />
     </bean>
 
+    <bean id="dataSource" class="com.minis.jdbc.datasource.SingleConnectionDataSource">
+        <property type="String" name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property type="String" name="url" value="jdbc:mysql://localhost:3306/gongchuang_test"/>
+        <property type="String" name="username" value="root"/>
+        <property type="String" name="password" value="azhaer66"/>
+    </bean>
+
+    <bean id="jdbcTemplate" class="com.minis.jdbc.core.JdbcTemplate" />
+    <bean id="studentService" class="com.minis.testService.StudentService"/>
 </beans>
