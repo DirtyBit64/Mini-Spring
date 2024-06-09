@@ -1,4 +1,4 @@
-package com.minis.core;
+package com.minis.jdbc.core;
 
 import java.sql.SQLException;
 import java.sql.Statement;
