@@ -1,13 +1,16 @@
 package com.minis.jdbc.core;
 
 import com.minis.beans.factory.annotation.Autowired;
+import com.minis.jdbc.pool.PooledDataSource;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 
 @NoArgsConstructor
+@Setter
 public class JdbcTemplate {
 
     @Autowired
@@ -19,17 +22,26 @@ public class JdbcTemplate {
 
         try {
             con = dataSource.getConnection();
+
+            if(con == null){
+                return "请求失败，服务器忙!";
+            }
+
             stmt = con.createStatement();
 
             return statementCallback.doInStatement(stmt);
         }
-        catch (Exception e) {
+        catch (SQLException e) {
             e.printStackTrace();
         }
         finally {
             try {
                 stmt.close();
                 con.close();
+                if (dataSource instanceof PooledDataSource){
+                    PooledDataSource dataSource1 = (PooledDataSource) dataSource;
+                    dataSource1.releaseConnection(con);
+                }
             } catch (Exception e) {
             }
         }
