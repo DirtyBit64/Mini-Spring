@@ -4,5 +4,5 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public interface StatementCallback {
-    Object doInStatement(Statement statement) throws SQLException;
+    Object doInStatement(String sql, Statement statement) throws SQLException;
 }

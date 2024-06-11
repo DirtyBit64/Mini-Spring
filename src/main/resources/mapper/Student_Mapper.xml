@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper namespace="com.minis.testController.pojo.Student">
+    <select id="getUserInfo" parameterType="java.lang.Long" resultType="com.minis.testController.pojo.Student">
+        select id, name, grade
+        from student
+        where id=?
+    </select>
+</mapper>

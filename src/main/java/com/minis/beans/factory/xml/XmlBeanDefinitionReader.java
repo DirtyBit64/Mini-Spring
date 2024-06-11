@@ -31,6 +31,15 @@ public class XmlBeanDefinitionReader {
             String beanID = element.attributeValue("id");
             String beanClassName = element.attributeValue("class");
             BeanDefinition beanDefinition = new BeanDefinition(beanID, beanClassName);
+            // 获取init-method属性
+            String initMethodName = element.attributeValue("init-method");
+            beanDefinition.setInitMethodName(initMethodName);
+            // 设置beanClass
+            try {
+                beanDefinition.setBeanClass(Class.forName(beanClassName));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
 
             // 处理构造器参数
             List<Element> constructorElements = element.elements("constructor-arg");

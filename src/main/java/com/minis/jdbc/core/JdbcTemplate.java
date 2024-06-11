@@ -16,7 +16,7 @@ public class JdbcTemplate {
     @Autowired
     private DataSource dataSource;
 
-    public Object query(StatementCallback statementCallback) {
+    public Object query(String sql, StatementCallback statementCallback) {
         Connection con = null;
         Statement stmt = null;
 
@@ -29,7 +29,7 @@ public class JdbcTemplate {
 
             stmt = con.createStatement();
 
-            return statementCallback.doInStatement(stmt);
+            return statementCallback.doInStatement(sql, stmt);
         }
         catch (SQLException e) {
             e.printStackTrace();

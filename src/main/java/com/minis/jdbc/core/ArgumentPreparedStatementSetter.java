@@ -33,7 +33,7 @@ public class ArgumentPreparedStatementSetter {
             pstmt.setDate(parameterPosition, new java.sql.Date(((java.util.Date)arg).getTime()));
         }
         else if (arg instanceof Long){
-            pstmt.setLong(parameterPosition+1, (long)arg);
+            pstmt.setLong(parameterPosition, (long)arg);
         }
     }
 }

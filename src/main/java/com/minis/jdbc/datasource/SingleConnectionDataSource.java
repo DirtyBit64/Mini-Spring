@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 
+@Deprecated
 @Getter
 @Setter
 @NoArgsConstructor

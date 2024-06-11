@@ -1,5 +1,7 @@
 package com.minis.testService;
 
+import com.minis.batis.SqlSession;
+import com.minis.batis.SqlSessionFactory;
 import com.minis.beans.factory.annotation.Autowired;
 import com.minis.jdbc.core.JdbcTemplate;
 import com.minis.testController.pojo.Student;
@@ -9,14 +11,15 @@ import java.sql.ResultSet;
 public class StudentService {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private SqlSessionFactory sqlSessionFactory;
 
     public Student getUserInfo(long userid) {
         // 相当于service调mapper了
-        final String sql = "select id, name, grade from student where id="+userid;
-        return (Student) jdbcTemplate.query(
+        String sqlid = "com.minis.testController.pojo.Student.getUserInfo";
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        return (Student) sqlSession.selectOne(sqlid, new Object[]{userid},
                 (stmt)->{
-                    ResultSet rs = stmt.executeQuery(sql);
+                    ResultSet rs = stmt.executeQuery();
                     Student rtnUser = null;
                     if (rs.next()) {
                         rtnUser = new Student();

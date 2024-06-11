@@ -33,7 +33,7 @@
     </bean>
 
     <!--数据源-->
-    <bean id="dataSource" class="com.minis.jdbc.pool.PooledDataSource">
+    <bean id="dataSource" class="com.minis.jdbc.pool.PooledDataSource" init-method="initPool">
         <constructor-arg type="String" name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
         <constructor-arg type="String" name="url" value="jdbc:mysql://localhost:3306/gongchuang_test"/>
         <constructor-arg type="String" name="username" value="root"/>
@@ -44,5 +44,8 @@
     <bean id="jdbcTemplate" class="com.minis.jdbc.core.JdbcTemplate" />
     <bean id="studentService" class="com.minis.testService.StudentService"/>
 
+    <bean id="sqlSessionFactory" class="com.minis.batis.DefaultSqlSessionFactory" init-method="init">
+        <property type="String" name="mapperLocations" value="mapper"></property>
+    </bean>
 
 </beans>

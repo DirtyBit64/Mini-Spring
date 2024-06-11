@@ -54,11 +54,6 @@ public class PooledDataSource implements DataSource {
         this.password = password;
         this.initialSize = initialSize;
         this.maxActive = initialSize;
-        try {
-            initPool();
-        } catch (SQLException e) {
-            log.error("error in initPool: 数据源连接池初始化失败", e);
-        }
     }
 
     // 连接池初始化
