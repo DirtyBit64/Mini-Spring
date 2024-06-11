@@ -12,7 +12,7 @@ MVC与IoC集成。将请求URI映射到控制器方法，使用处理器适配�
 ## :label: TODO 
 - [x] 实现mini-ioc
 - [x] 实现mini-mvc
-- [ ] 实现jdbc-template
+- [x] 实现jdbc-template
 - [ ] 实现mini-aop
 
 ## Reference
