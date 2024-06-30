@@ -80,7 +80,9 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
                 mav.setViewName(sTarget);
             }
         }
-        response.getWriter().append(returnObj.toString());
+        if(returnObj != null) {
+            response.getWriter().append(returnObj.toString());
+        }
 
         return mav;
     }

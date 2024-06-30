@@ -48,4 +48,10 @@
         <property type="String" name="mapperLocations" value="mapper"></property>
     </bean>
 
+    <!--AOP-->
+    <bean id="realAction" class="com.minis.testService.Impl.Action1" />
+    <bean id="action" class="com.minis.aop.ProxyFactoryBean" >
+        <property type="java.lang.Object" name="target" ref="realAction"/>
+    </bean>
+
 </beans>

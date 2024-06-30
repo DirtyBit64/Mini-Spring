@@ -4,6 +4,7 @@ import com.minis.beans.BeansException;
 import com.minis.beans.PropertyValue;
 import com.minis.beans.PropertyValues;
 import com.minis.beans.factory.BeanFactory;
+import com.minis.beans.factory.FactoryBean;
 import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.config.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.config.ConstructorArgumentValue;
@@ -24,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @NoArgsConstructor
 @Slf4j
 @Getter
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport
     implements BeanFactory, BeanDefinitionRegistry {
 
     protected Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
@@ -75,6 +76,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                 // step 3: postProcessAfterInitialization
                 applyBeanPostProcessorAfterInitialization(singleton, beanName);
             }
+        }
+
+        //处理factorybean
+        if (singleton instanceof FactoryBean) {
+            return this.getObjectForBeanInstance(singleton, beanName);
         }
 
         return singleton;

@@ -4,10 +4,14 @@ import com.minis.beans.factory.annotation.Autowired;
 import com.minis.testController.pojo.Student;
 import com.minis.testController.pojo.User;
 import com.minis.testService.AService;
+import com.minis.testService.IAction;
 import com.minis.testService.StudentService;
 import com.minis.web.annotation.RequestMapping;
 import com.minis.web.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 
 public class HelloWorldBean {
@@ -16,6 +20,8 @@ public class HelloWorldBean {
     private AService aService;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private IAction action;
 
     @RequestMapping(value = "/get")
     public String doGet(User user) {
@@ -37,9 +43,15 @@ public class HelloWorldBean {
     public User doTest6(User user) {
         return user;
     }
+
     @RequestMapping("/test7")
     @ResponseBody
     public Student doTest7() {
         return studentService.getUserInfo(8L);
+    }
+
+    @RequestMapping("/testaop")
+    public void doTestAop() {
+        action.doAction();
     }
 }
