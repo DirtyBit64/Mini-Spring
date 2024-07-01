@@ -1,7 +1,11 @@
 package com.minis.beans.factory.support;
 
 import com.minis.beans.BeansException;
+import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.FactoryBean;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry{
     protected Class<?> getTypeForFactoryBean(final FactoryBean<?> factoryBean) {
@@ -28,7 +32,6 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
     }
 
     private Object postProcessObjectFromFactoryBean(Object object, String beanName)  throws BeansException{
-        // todo
         return object;
     }
 

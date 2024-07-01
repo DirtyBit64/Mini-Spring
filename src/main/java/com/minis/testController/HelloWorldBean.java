@@ -52,6 +52,7 @@ public class HelloWorldBean {
 
     @RequestMapping("/testaop")
     public void doTestAop() {
+        // System.out.println(action);
         action.doAction();
     }
 }

@@ -1,7 +1,10 @@
 package com.minis.aop;
 
+import com.minis.beans.BeansException;
+import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.FactoryBean;
 import com.minis.util.ClassUtils;
+import com.mysql.cj.protocol.x.XProtocolRowInputStream;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,15 +17,33 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
     private Object target;
     private ClassLoader proxyClassLoader = ClassUtils.getDefaultClassLoader();
     private Object singletonInstance;
+    // 代理bean构建好后专门setter调用下
+    private BeanFactory beanFactory;
+    private String interceptorName;
+    private Advisor advisor;
+
     public ProxyFactoryBean() {
         this.aopProxyFactory = new DefaultAopProxyFactory();
     }
 
-    protected AopProxy createAopProxy() {
-        return aopProxyFactory.createAopProxy(target);
+    //ioc构建好bean后调用
+    private void init(){
+        initializeAdvisor();
     }
-    public void setInterceptorNames(String... interceptorNames) {
-        this.interceptorNames = interceptorNames;
+
+    private synchronized void initializeAdvisor() {
+        Object advice = null;
+        try {
+            advice = this.beanFactory.getBean(this.interceptorName);
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
+        advisor = new DefaultAdvisor();
+        advisor.setMethodInterceptor((MethodInterceptor)advice);
+    }
+
+    protected AopProxy createAopProxy() {
+        return aopProxyFactory.createAopProxy(target, this.advisor);
     }
 
     //获取内部对象
@@ -43,6 +64,6 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
     }
     @Override
     public Class<?> getObjectType() {
-        return null;
+        return getObject().getClass();
     }
 }

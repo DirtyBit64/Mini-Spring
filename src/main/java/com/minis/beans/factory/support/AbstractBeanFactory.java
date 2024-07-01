@@ -66,6 +66,25 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport
                 }
                 singleton = createBean(beanDefinition);
                 this.registerBean(beanName, singleton);
+
+                // step 0:如果是代理bean,在init方法调用之前手动注入beanFactory
+                if (singleton instanceof FactoryBean) {
+                    //按照setXxxx规范查找setter方法，调用setter方法设置属性
+                    String methodName = "setBeanFactory";
+                    Method method;
+                    try {
+                        method = singleton.getClass().getMethod(methodName, BeanFactory.class);
+                    } catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        // 遍历property并调用其setter方法
+                        method.invoke(singleton, this);
+                    } catch (InvocationTargetException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
                 // 进行beanpostprocessor处理
                 // step 1: postProcessBeforeInitialization
                 applyBeanPostProcessorBeforeInitialization(singleton, beanName);
@@ -78,7 +97,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport
             }
         }
 
-        //处理factorybean
+        //处理factorybean，返回给用户代理bean
         if (singleton instanceof FactoryBean) {
             return this.getObjectForBeanInstance(singleton, beanName);
         }
