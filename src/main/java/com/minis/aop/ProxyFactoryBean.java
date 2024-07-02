@@ -31,15 +31,24 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
         initializeAdvisor();
     }
 
+    // 初始化拦截器
     private synchronized void initializeAdvisor() {
         Object advice = null;
+        MethodInterceptor mi = null;
         try {
             advice = this.beanFactory.getBean(this.interceptorName);
         } catch (BeansException e) {
             e.printStackTrace();
         }
+        if (advice instanceof BeforeAdvice) {
+            mi = new MethodBeforeAdviceInterceptor((MethodBeforeAdvice)advice);
+        } else if (advice instanceof AfterAdvice) {
+            mi = new AfterReturningAdviceInterceptor((AfterReturningAdvice)advice);
+        } else if (advice instanceof MethodInterceptor) {
+            mi = (MethodInterceptor)advice;
+        }
         advisor = new DefaultAdvisor();
-        advisor.setMethodInterceptor((MethodInterceptor)advice);
+        advisor.setMethodInterceptor(mi);
     }
 
     protected AopProxy createAopProxy() {
