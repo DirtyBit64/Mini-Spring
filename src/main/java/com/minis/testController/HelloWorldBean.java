@@ -52,6 +52,7 @@ public class HelloWorldBean {
 
     @RequestMapping("/testaop")
     public void doTestAop() {
+        // 当apo匹配失败，invoke执行真实业务对象的方法，包括toString等,完全屏蔽了代理过程
         System.out.println(action);
         action.doAction();
     }

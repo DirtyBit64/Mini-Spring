@@ -3,6 +3,7 @@ package com.minis.aop;
 import com.minis.beans.BeansException;
 import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.FactoryBean;
+import com.minis.beans.factory.annotation.Autowired;
 import com.minis.util.ClassUtils;
 import com.mysql.cj.protocol.x.XProtocolRowInputStream;
 import lombok.Getter;
@@ -17,10 +18,13 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
     private Object target;
     private ClassLoader proxyClassLoader = ClassUtils.getDefaultClassLoader();
     private Object singletonInstance;
+
     // 代理bean构建好后专门setter调用下
     private BeanFactory beanFactory;
     private String interceptorName;
-    private Advisor advisor;
+
+    @Autowired
+    private PointcutAdvisor advisor;
 
     public ProxyFactoryBean() {
         this.aopProxyFactory = new DefaultAopProxyFactory();
@@ -34,21 +38,14 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
     // 初始化拦截器
     private synchronized void initializeAdvisor() {
         Object advice = null;
-        MethodInterceptor mi = null;
         try {
             advice = this.beanFactory.getBean(this.interceptorName);
         } catch (BeansException e) {
             e.printStackTrace();
         }
-        if (advice instanceof BeforeAdvice) {
-            mi = new MethodBeforeAdviceInterceptor((MethodBeforeAdvice)advice);
-        } else if (advice instanceof AfterAdvice) {
-            mi = new AfterReturningAdviceInterceptor((AfterReturningAdvice)advice);
-        } else if (advice instanceof MethodInterceptor) {
-            mi = (MethodInterceptor)advice;
-        }
-        advisor = new DefaultAdvisor();
-        advisor.setMethodInterceptor(mi);
+
+        this.advisor.setAdvice((Advice) advice);
+        // this.advisor = (PointcutAdvisor) advice;
     }
 
     protected AopProxy createAopProxy() {

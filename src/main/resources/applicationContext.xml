@@ -55,5 +55,9 @@
         <property type="java.lang.Object" name="target" ref="realAction"/>
         <property type="String" name="interceptorName" value="myAfterReturningAdvice"/>
     </bean>
+    <bean id="advisor" class="com.minis.aop.NameMatchMethodPointcutAdvisor" init-method="init">
+        <property type="com.minis.aop.Advice" name="advice" ref="myAfterReturningAdvice"/>
+        <property type="String" name="mappedName" value="do*"/>
+    </bean>
 
 </beans>
