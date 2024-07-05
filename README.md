@@ -13,7 +13,7 @@ MVC与IoC集成。将请求URI映射到控制器方法，使用处理器适配�
 - [x] 实现mini-ioc
 - [x] 实现mini-mvc
 - [x] 实现jdbc-template
-- [ ] 实现mini-aop
+- [x] 实现mini-aop
 
 ## Reference
 参考仓库[Minis](https://github.com/YaleGuo/Minis)

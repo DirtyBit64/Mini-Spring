@@ -49,15 +49,19 @@
     </bean>
 
     <!--AOP-->
-    <bean id="realAction" class="com.minis.testService.Impl.Action1" />
     <bean id="myAfterReturningAdvice" class="com.minis.testService.MyAfterAdvice" />
-    <bean id="action" class="com.minis.aop.ProxyFactoryBean" init-method="init">
-        <property type="java.lang.Object" name="target" ref="realAction"/>
-        <property type="String" name="interceptorName" value="myAfterReturningAdvice"/>
-    </bean>
     <bean id="advisor" class="com.minis.aop.NameMatchMethodPointcutAdvisor" init-method="init">
         <property type="com.minis.aop.Advice" name="advice" ref="myAfterReturningAdvice"/>
         <property type="String" name="mappedName" value="do*"/>
+    </bean>
+
+    <!-- 实际业务bean-->
+    <bean id="action1" class="com.minis.testService.Impl.Action1" />
+
+    <bean id="autowiredAnnotationBeanPostProcessor" class="com.minis.beans.AutowiredAnnotationBeanPostProcessor" />
+    <bean id="autoProxyCreator" class="com.minis.aop.framework.autoproxy.BeanNameAutoProxyCreator" >
+        <property type="String" name="pattern" value="action*" />
+        <property type="String" name="interceptorName" value="advisor" />
     </bean>
 
 </beans>

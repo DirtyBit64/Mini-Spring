@@ -13,26 +13,21 @@ public class NameMatchMethodPointcutAdvisor implements PointcutAdvisor{
     private final NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
     public NameMatchMethodPointcutAdvisor() {
     }
-    public NameMatchMethodPointcutAdvisor(Advice advice) {
-        this.setAdvice(advice);
-    }
 
     // 完成一些初始化操作
     private void init(){
         setMappedName(mappedName);
+        setAdvice(advice);
     }
 
-    @Override
     public void setAdvice(Advice advice) {
         this.advice = advice;
         MethodInterceptor mi = null;
         if (advice instanceof BeforeAdvice) {
             mi = new MethodBeforeAdviceInterceptor((MethodBeforeAdvice)advice);
-        }
-        else if (advice instanceof AfterAdvice){
+        } else if (advice instanceof AfterAdvice){
             mi = new AfterReturningAdviceInterceptor((AfterReturningAdvice)advice);
-        }
-        else if (advice instanceof MethodInterceptor) {
+        } else if (advice instanceof MethodInterceptor) {
             mi = (MethodInterceptor)advice;
         }
         setMethodInterceptor(mi);
@@ -42,5 +37,10 @@ public class NameMatchMethodPointcutAdvisor implements PointcutAdvisor{
     public void setMappedName(String mappedName) {
         this.mappedName = mappedName;
         this.pointcut.setMappedName(this.mappedName);
+    }
+
+    @Override
+    public void setAdvice(Advisor advice) {
+
     }
 }

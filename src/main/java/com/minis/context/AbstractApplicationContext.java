@@ -66,7 +66,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext{
     protected abstract void registerListeners();
     public abstract void initApplicationEventPublisher();
     protected abstract void postProcessBeanFactory(ConfigurableListableBeanFactory bf);
-    protected abstract void registerBeanPostProcessors(ConfigurableListableBeanFactory bf);
+    protected abstract void registerBeanPostProcessors(ConfigurableListableBeanFactory bf) throws BeansException;
     protected abstract void onRefresh();
     protected abstract void finishRefresh();
 

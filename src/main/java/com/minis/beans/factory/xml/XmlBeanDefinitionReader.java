@@ -78,18 +78,18 @@ public class XmlBeanDefinitionReader {
             beanDefinition.setDependsOn(refArray);
             this.beanFactory.registerBeanDefinition(beanID, beanDefinition);
         }
-        // 等所有beandefinition注册加载完毕后再加载bean
-        for (String bdName : this.beanFactory.getBeanDefinitionNames()){
-            BeanDefinition bd = this.beanFactory.getBeanDefinitionMap().get(bdName);
-            // 如果没有选择懒加载
-            if (!bd.isLazyInit()) {
-                try {
-                    this.beanFactory.getBean(bd.getId());
-                } catch (BeansException e) {
-                    log.error("registerBeanDefinition()发生异常", e);
-                }
-            }
-        }
+//        // 等所有beandefinition注册加载完毕后再加载bean ---> 废弃，加载bean交给refresh函数处理
+//        for (String bdName : this.beanFactory.getBeanDefinitionNames()){
+//            BeanDefinition bd = this.beanFactory.getBeanDefinitionMap().get(bdName);
+//            // 如果没有选择懒加载
+//            if (!bd.isLazyInit()) {
+//                try {
+//                    this.beanFactory.getBean(bd.getId());
+//                } catch (BeansException e) {
+//                    log.error("registerBeanDefinition()发生异常", e);
+//                }
+//            }
+//        }
 
     }
 }

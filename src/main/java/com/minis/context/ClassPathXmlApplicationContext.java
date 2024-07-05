@@ -1,20 +1,12 @@
 package com.minis.context;
 
+import com.minis.aop.framework.autoproxy.BeanNameAutoProxyCreator;
 import com.minis.beans.*;
-import com.minis.beans.factory.BeanFactory;
-import com.minis.beans.factory.config.BeanFactoryPostProcessor;
-import com.minis.beans.factory.config.BeanPostProcessor;
 import com.minis.beans.factory.config.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.beans.factory.xml.XmlBeanDefinitionReader;
 import com.minis.core.ClassPathXmlResource;
 import com.minis.core.Resource;
-import com.minis.core.env.Environment;
-import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     private DefaultListableBeanFactory beanFactory;
@@ -27,8 +19,10 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
         Resource resource = new ClassPathXmlResource(fileName);
         this.beanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
-        registerBeanPostProcessors(this.beanFactory); // 1.先这样，之后再看
-        reader.loadBeanDefinitions(resource); // 2.懒加载逻辑在这,创建bean
+        // 懒加载逻辑在这,创建bean
+        reader.loadBeanDefinitions(resource);
+        // 先加载bean定义再注册后处理器,因为beanPostProcessor统一交给ioc管理了
+        registerBeanPostProcessors(this.beanFactory);
         if(isRefresh){
             // 激活容器，加载所有bean
             refresh();
@@ -44,12 +38,10 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
         return this.beanFactory.getBean(beanID);
     }
 
-//    public void refresh() throws IllegalStateException {
-//        // 注册紧跟beanFactory创建,提上去  1.注册拦截bean创建的bean处理器
-//        // registerBeanPostProcessors(this.beanFactory);
-//        // 2.初始化特定上下文子类中的其他特殊bean
-//        onRefresh();
-//    }
+    @Override
+    public void registerBean(String beanName, Object obj) {
+
+    }
 
     /**
      * 注册事件监听器
@@ -62,7 +54,6 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void initApplicationEventPublisher() {
-        // 先采用简单实现
         ApplicationEventPublisher aep = new SimpleApplicationEventPublisher();
         this.setApplicationEventPublisher(aep);
     }
@@ -73,8 +64,11 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        this.beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+    protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        // 注册Autowired后处理器
+        this.beanFactory.addBeanPostProcessor((AutowiredAnnotationBeanPostProcessor) beanFactory.getBean("autowiredAnnotationBeanPostProcessor"));
+        // 注册自动代理后处理器
+        this.beanFactory.addBeanPostProcessor((BeanNameAutoProxyCreator) beanFactory.getBean("autoProxyCreator"));
     }
 
     @Override
@@ -101,12 +95,6 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     public void addApplicationListener(ApplicationListener listener) {
         this.getApplicationEventPublisher().addApplicationListener(listener);
     }
-
-
-    private void registerBeanPostProcessors(DefaultListableBeanFactory beanFactory) {
-        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
-    }
-
 
     @Override
     public String[] getBeanDefinitionNamesAsArray() {

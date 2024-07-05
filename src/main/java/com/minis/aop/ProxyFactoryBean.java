@@ -3,14 +3,14 @@ package com.minis.aop;
 import com.minis.beans.BeansException;
 import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.FactoryBean;
-import com.minis.beans.factory.annotation.Autowired;
 import com.minis.util.ClassUtils;
-import com.mysql.cj.protocol.x.XProtocolRowInputStream;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Setter
 @Getter
+@Slf4j
 public class ProxyFactoryBean implements FactoryBean<Object> {
     private AopProxyFactory aopProxyFactory;
     private String[] interceptorNames;
@@ -23,20 +23,15 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
     private BeanFactory beanFactory;
     private String interceptorName;
 
-    @Autowired
     private PointcutAdvisor advisor;
 
     public ProxyFactoryBean() {
         this.aopProxyFactory = new DefaultAopProxyFactory();
-    }
-
-    //ioc构建好bean后调用
-    private void init(){
-        initializeAdvisor();
+        log.info("创建了一个ProxyFactoryBean");
     }
 
     // 初始化拦截器
-    private synchronized void initializeAdvisor() {
+    public synchronized void initializeAdvisor() {
         Object advice = null;
         try {
             advice = this.beanFactory.getBean(this.interceptorName);
@@ -44,8 +39,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
             e.printStackTrace();
         }
 
-        this.advisor.setAdvice((Advice) advice);
-        // this.advisor = (PointcutAdvisor) advice;
+        this.advisor = (PointcutAdvisor) advice;
     }
 
     protected AopProxy createAopProxy() {
