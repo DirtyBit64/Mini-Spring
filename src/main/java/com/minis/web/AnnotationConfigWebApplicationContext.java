@@ -9,7 +9,6 @@ import javax.servlet.ServletContext;
 
 import com.minis.beans.AutowiredAnnotationBeanPostProcessor;
 import com.minis.beans.factory.config.BeanDefinition;
-import com.minis.beans.factory.config.BeanFactoryPostProcessor;
 import com.minis.beans.factory.config.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.context.AbstractApplicationContext;
@@ -22,7 +21,6 @@ public class AnnotationConfigWebApplicationContext extends AbstractApplicationCo
     private WebApplicationContext parentApplicationContext;
     private ServletContext servletContext;
     DefaultListableBeanFactory beanFactory;
-    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<BeanFactoryPostProcessor>();
 
     public AnnotationConfigWebApplicationContext(String fileName) {
         this(fileName, null);

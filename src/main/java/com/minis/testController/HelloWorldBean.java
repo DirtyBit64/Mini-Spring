@@ -21,7 +21,7 @@ public class HelloWorldBean {
     @Autowired
     private StudentService studentService;
     @Autowired
-    private IAction action;
+    private IAction action1;
 
     @RequestMapping(value = "/get")
     public String doGet(User user) {
@@ -52,8 +52,8 @@ public class HelloWorldBean {
 
     @RequestMapping("/testaop")
     public void doTestAop() {
-        // 当apo匹配失败，invoke执行真实业务对象的方法，包括toString等,完全屏蔽了代理过程
-        System.out.println(action);
-        action.doAction();
+        // 当aop匹配失败，invoke执行真实业务对象的方法，包括toString等,完全屏蔽了代理过程
+        System.out.println(action1);
+        action1.doAction();
     }
 }

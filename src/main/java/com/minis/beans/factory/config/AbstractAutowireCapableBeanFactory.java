@@ -9,16 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
-    protected final List<AutowiredAnnotationBeanPostProcessor> beanPostProcessors = new ArrayList<>();
+    protected final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-        this.beanPostProcessors.remove((AutowiredAnnotationBeanPostProcessor) beanPostProcessor);
-        this.beanPostProcessors.add((AutowiredAnnotationBeanPostProcessor) beanPostProcessor);
+        this.beanPostProcessors.remove(beanPostProcessor);
+        this.beanPostProcessors.add(beanPostProcessor);
     }
     @Override
     public Object applyBeanPostProcessorBeforeInitialization(Object existingBean, String beanName) throws BeansException {
         Object result = existingBean;
-        for (AutowiredAnnotationBeanPostProcessor beanProcessor : this.beanPostProcessors) {
-            beanProcessor.setBeanFactory((DefaultListableBeanFactory) this);
+        for (BeanPostProcessor beanProcessor : this.beanPostProcessors) {
+            beanProcessor.setBeanFactory(this);
             result = beanProcessor.postProcessBeforeInitialization(result, beanName);
             if (result == null) {
                 break;

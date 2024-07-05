@@ -5,10 +5,7 @@ import com.minis.beans.PropertyValue;
 import com.minis.beans.PropertyValues;
 import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.FactoryBean;
-import com.minis.beans.factory.config.BeanDefinition;
-import com.minis.beans.factory.config.ConfigurableListableBeanFactory;
-import com.minis.beans.factory.config.ConstructorArgumentValue;
-import com.minis.beans.factory.config.ConstructorArgumentValues;
+import com.minis.beans.factory.config.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -62,7 +59,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport
                 //如果连毛胚都没有，则创建bean实例并注册
                 BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
                 if(beanDefinition == null){
-                    return null; // 让wac调用父容器(IoC)的getBean
+                    // 让wac调用父容器(IoC)的getBean
+                    return null;
                 }
                 singleton = createBean(beanDefinition);
                 this.registerBean(beanName, singleton);
@@ -87,7 +85,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport
 
                 // 进行beanpostprocessor处理
                 // step 1: postProcessBeforeInitialization
-                applyBeanPostProcessorBeforeInitialization(singleton, beanName);
+                if (!(singleton instanceof BeanPostProcessor)){
+                    singleton = applyBeanPostProcessorBeforeInitialization(singleton, beanName);
+                }
                 // step 2: init-method
                 if (beanDefinition.getInitMethodName() != null && !beanDefinition.equals("")) {
                     invokeInitMethod(beanDefinition, singleton);

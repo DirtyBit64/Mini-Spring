@@ -1,6 +1,5 @@
 package com.minis.beans.factory.support;
 
-import com.minis.beans.AutowiredAnnotationBeanPostProcessor;
 import com.minis.beans.BeansException;
 import com.minis.beans.factory.config.AbstractAutowireCapableBeanFactory;
 import com.minis.beans.factory.config.BeanDefinition;
@@ -75,19 +74,6 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public String[] getBeanDefinitionNamesAsArray() {
         String[] format = new String[super.getBeanDefinitionNames().size()]; // 避免ClassCastException
         return super.getBeanDefinitionNames().toArray(format);
-    }
-
-    @Override
-    public Object applyBeanPostProcessorBeforeInitialization(Object existingBean, String beanName) throws BeansException {
-        Object result = existingBean;
-        for (AutowiredAnnotationBeanPostProcessor beanProcessor : super.beanPostProcessors) {
-            beanProcessor.setBeanFactory(this);
-            result = beanProcessor.postProcessBeforeInitialization(result, beanName);
-            if (result == null) {
-                break;
-            }
-        }
-        return result;
     }
 
 }

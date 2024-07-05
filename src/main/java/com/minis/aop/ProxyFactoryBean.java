@@ -5,12 +5,13 @@ import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.FactoryBean;
 import com.minis.beans.factory.annotation.Autowired;
 import com.minis.util.ClassUtils;
-import com.mysql.cj.protocol.x.XProtocolRowInputStream;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Setter
 @Getter
+@Slf4j
 public class ProxyFactoryBean implements FactoryBean<Object> {
     private AopProxyFactory aopProxyFactory;
     private String[] interceptorNames;
@@ -28,6 +29,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 
     public ProxyFactoryBean() {
         this.aopProxyFactory = new DefaultAopProxyFactory();
+        log.info("为{}创建了一个ProxyFactoryBean", targetName);
     }
 
     //ioc构建好bean后调用

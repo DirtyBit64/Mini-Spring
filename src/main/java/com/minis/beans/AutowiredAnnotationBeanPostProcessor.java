@@ -39,12 +39,13 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         return bean;
     }
 
-    public void setBeanFactory(DefaultListableBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
-
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         return null;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 }
