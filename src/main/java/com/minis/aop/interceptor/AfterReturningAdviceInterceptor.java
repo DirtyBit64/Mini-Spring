@@ -1,6 +1,10 @@
-package com.minis.aop;
+package com.minis.aop.interceptor;
 
-public class AfterReturningAdviceInterceptor implements MethodInterceptor, AfterAdvice{
+import com.minis.aop.AfterAdvice;
+import com.minis.aop.AfterReturningAdvice;
+import com.minis.aop.MethodInvocation;
+
+public class AfterReturningAdviceInterceptor implements MethodInterceptor, AfterAdvice {
     private final AfterReturningAdvice advice;
     public AfterReturningAdviceInterceptor(AfterReturningAdvice advice) {
         this.advice = advice;

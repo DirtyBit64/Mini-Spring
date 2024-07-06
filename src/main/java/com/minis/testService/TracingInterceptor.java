@@ -1,6 +1,6 @@
 package com.minis.testService;
 
-import com.minis.aop.MethodInterceptor;
+import com.minis.aop.interceptor.MethodInterceptor;
 import com.minis.aop.MethodInvocation;
 
 public class TracingInterceptor implements MethodInterceptor {

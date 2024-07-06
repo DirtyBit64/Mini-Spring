@@ -64,4 +64,8 @@
         <property type="String" name="interceptorName" value="advisor" />
     </bean>
 
+    <!-- 数据库事务-->
+    <bean id="transactionInterceptor" class="com.minis.aop.interceptor.TransactionInterceptor" > </bean>
+    <bean id="txManager" class="com.minis.transaction.TransactionManager"> </bean>
+
 </beans>
