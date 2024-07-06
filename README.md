@@ -6,8 +6,9 @@ MVC与IoC集成。将请求URI映射到控制器方法，使用处理器适配�
 实现切点(Pointcut)和自动代理创建器(AutoProxyCreator)。
 使用注解和AOP实现异步(@Async)。
 支持方法拦截器、方法前置通知和方法返回后通知。
-支持RESTful。
 基于JDBC模板实现MyBatis。
+支持简单的数据库事务控制。
+采用Lombok简化代码，便于清晰核心结构
 
 ## :label: TODO 
 - [x] 实现mini-ioc
