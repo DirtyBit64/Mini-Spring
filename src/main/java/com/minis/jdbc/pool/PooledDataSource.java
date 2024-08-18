@@ -90,15 +90,18 @@ public class PooledDataSource implements DataSource {
         // 没获取到，看看是否能新建一个
         try {
             // 判断当前连接是否达到最大值，如果没达到，新建连接
-            // CAS机制校验
+            // DCL双重校验
             if (busy.size() < getMaxActive()) {
-                if (busy.size() + 1 <= getMaxActive()) {
-                    // +1后没超过，创建
-                    PooledConnection newCon = new PooledConnection(
-                            DriverManager.getConnection(url, username, password), false);
-                    setMaxActive(getMaxActive() + 1);
-                    busy.add(newCon);
-                    pooledConnection = newCon;
+                synchronized (this){
+                    if (busy.size() + 1 <= getMaxActive()) {
+                        // +1后没超过，创建
+                        PooledConnection newCon = new PooledConnection(
+                                DriverManager.getConnection(url, username, password), false);
+                        // 考虑可见性问题
+                        setMaxActive(getMaxActive() + 1);
+                        busy.add(newCon);
+                        pooledConnection = newCon;
+                    }
                 }
             }else{
                 throw new SQLException("获取连接失败，服务器忙!");
